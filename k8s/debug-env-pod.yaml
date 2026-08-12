@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: debug-env
+spec:
+  restartPolicy: Never
+  containers:
+    - name: debug-env
+      image: devops-app:latest
+      command: ["sleep", "3600"]
+      envFrom:
+        - configMapRef:
+            name: app-config
+      env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
