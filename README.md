@@ -309,7 +309,3 @@ Author
 Abhiram Teja
 
 B.Tech Computer Science Engineering
-
-License
-
-This project is created for educational and portfolio purposes.
