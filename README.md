@@ -1,346 +1,282 @@
-# Employee Management Microservice — DevOps Project
+# Employee Management System – DevOps Microservice
 
-A full-stack **Employee Management System** built with **Spring Boot, PostgreSQL, React, Docker, and Kubernetes**. The project demonstrates how a backend microservice can be containerized, orchestrated, configured, and exposed through a modern web interface.
+A full-stack Employee Management System built using **Spring Boot, React, and PostgreSQL**, containerized with **Docker**, and deployed using **Kubernetes**.
+
+This project demonstrates how a backend application and database can be containerized, configured, and deployed using modern DevOps practices.
 
 ## Project Overview
 
-The application provides an HR-style employee management portal with complete CRUD functionality.
+The application provides an interface to manage employees in an organization.
 
 Users can:
 
-* View employees
-* Add employees
-* Edit employee details
-* Delete employees
-* Search employees
-* Filter employees by department
-* View employee statistics
-* Calculate average salary dynamically
+- Add employees
+- View all employees
+- Search employees
+- Filter employees by department
+- Update employee information
+- Delete employees
+- View employee statistics
+- Manage employee records through a web dashboard
 
-The backend is deployed as a Docker container and managed by Kubernetes, while PostgreSQL runs as a separate Kubernetes workload with persistent storage.
+The project also demonstrates containerization and Kubernetes-based deployment of the application and PostgreSQL database.
 
 ## Architecture
 
 ```text
-                         GitHub
-                            │
-                            ▼
-                     GitHub Actions
-                            │
-                     Build & Test
-                            │
-                            ▼
-                       Docker Image
-                            │
-                            ▼
-                  ┌─────────────────────┐
-                  │ Kubernetes Cluster  │
-                  │   Docker Desktop    │
-                  │                     │
-                  │  ┌───────────────┐  │
-                  │  │ React Frontend│  │
-                  │  └───────┬───────┘  │
-                  │          │           │
-                  │          ▼           │
-                  │  ┌───────────────┐  │
-                  │  │ Spring Boot   │  │
-                  │  │ REST API      │  │
-                  │  └───────┬───────┘  │
-                  │          │           │
-                  │          ▼           │
-                  │  ┌───────────────┐  │
-                  │  │ PostgreSQL    │  │
-                  │  │ Pod           │  │
-                  │  └───────┬───────┘  │
-                  │          │           │
-                  │          ▼           │
-                  │  Persistent Volume   │
-                  └─────────────────────┘
-```
-
-## Technology Stack
-
-### Backend
-
-* Java 21
-* Spring Boot
-* Spring Data JPA
-* Hibernate
-* PostgreSQL
-* Maven
-* Spring Boot Actuator
-
-### Frontend
-
-* React
-* Vite
-* JavaScript
-* CSS
-
-### DevOps
-
-* Git & GitHub
-* GitHub Actions
-* Docker
-* Kubernetes
-* Docker Desktop Kubernetes
-* Kubernetes ConfigMap
-* Kubernetes Secrets
-* Kubernetes Services
-* PersistentVolumeClaim
-* Kubernetes health probes
-
-## Backend API
-
-| Method | Endpoint           | Description        |
-| ------ | ------------------ | ------------------ |
-| GET    | `/employees`       | Get all employees  |
-| GET    | `/employees/{id}`  | Get employee by ID |
-| POST   | `/employees`       | Create employee    |
-| PUT    | `/employees/{id}`  | Update employee    |
-| DELETE | `/employees/{id}`  | Delete employee    |
-| GET    | `/actuator/health` | Application health |
-
-### Employee Model
-
-```json
-{
-  "id": 1,
-  "name": "Alice",
-  "department": "Engineering",
-  "salary": 75000
-}
-```
-
-## Kubernetes Architecture
-
-The application uses separate Kubernetes workloads for the application and database.
-
-### Spring Boot
-
-* Deployment: `devops-app-deployment`
-* Service: `devops-app-service`
-* Service type: `NodePort`
-* Port: `30080`
-* Container port: `8080`
-
-### PostgreSQL
-
-* Deployment: `postgres-deployment`
-* Service: `postgres-service`
-* Service type: `ClusterIP`
-* Port: `5432`
-
-### Configuration
-
-A Kubernetes **ConfigMap** provides non-sensitive database configuration:
-
-```text
-DB_HOST
-DB_PORT
-DB_NAME
-```
-
-A Kubernetes **Secret** provides database credentials.
-
-The actual secret file is intentionally excluded from Git. A safe example is provided as:
-
-```text
-k8s/postgres-secret.example.yaml
-```
-
-### Persistent Storage
-
-PostgreSQL uses a:
-
-```text
-postgres-pvc
-```
-
-with a 1 GiB PersistentVolumeClaim so database data can survive PostgreSQL pod restarts.
-
-### Health Checks
-
-Spring Boot Actuator exposes:
-
-```text
-/actuator/health
-```
-
-Kubernetes uses this endpoint for application readiness and liveness probes.
-
-## Running the Project Locally
-
-### Backend
-
-Build the application:
-
-```bash
-mvn clean package -DskipTests
-```
-
-Run the Spring Boot application:
-
-```bash
-mvn spring-boot:run
-```
-
-The backend runs on:
-
-```text
-http://localhost:8080
-```
-
-### Frontend
-
-Navigate to the frontend:
-
-```bash
-cd frontend
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Start the development server:
-
-```bash
-npm run dev
-```
-
-The frontend is available at:
-
-```text
-http://localhost:5173
-```
-
-## Running with Kubernetes
-
-Make sure Docker Desktop Kubernetes is enabled.
-
-Verify the cluster:
-
-```bash
-kubectl get nodes
-```
-
-Deploy the Kubernetes resources:
-
-```bash
-kubectl apply -f k8s/
-```
-
-Check the workloads:
-
-```bash
-kubectl get pods
-kubectl get deployments
-kubectl get svc
-kubectl get pvc
-```
-
-Expected result:
-
-```text
-Spring Boot Pod       1/1 Running
-PostgreSQL Pod        1/1 Running
-PVC                   Bound
-```
-
-### Access the Backend
-
-For local demonstration:
-
-```bash
-kubectl port-forward svc/devops-app-service 8080:8080
-```
-
-The API can then be accessed at:
-
-```text
-http://localhost:8080/employees
-```
-
-Health check:
-
-```text
-http://localhost:8080/actuator/health
-```
-
-## CRUD Operations
-
-### Create
-
-```http
-POST /employees
-```
-
-```json
-{
-  "name": "Alice",
-  "department": "Engineering",
-  "salary": 75000
-}
-```
-
-### Read
-
-```http
+                    ┌─────────────────────┐
+                    │      React UI       │
+                    │   Employee Portal   │
+                    └──────────┬──────────┘
+                               │
+                               │ REST API
+                               ▼
+                    ┌─────────────────────┐
+                    │   Spring Boot API   │
+                    │      :8080          │
+                    └──────────┬──────────┘
+                               │
+                               │ JPA / Hibernate
+                               ▼
+                    ┌─────────────────────┐
+                    │     PostgreSQL      │
+                    │       :5432         │
+                    └─────────────────────┘
+
+                         Kubernetes
+                              │
+              ┌───────────────┴───────────────┐
+              │                               │
+      ┌───────▼────────┐             ┌────────▼────────┐
+      │  App Deployment │             │    PostgreSQL   │
+      │  Spring Boot    │             │    Deployment   │
+      └─────────────────┘             └─────────────────┘
+Tech Stack
+Frontend
+React
+Vite
+HTML
+CSS
+JavaScript
+Backend
+Java 21
+Spring Boot 3.5
+Spring Web
+Spring Data JPA
+Hibernate
+Spring Boot Actuator
+Database
+PostgreSQL 16
+DevOps
+Docker
+Docker Desktop
+Kubernetes
+Kubernetes Deployments
+Kubernetes Services
+ConfigMaps
+Secrets
+PersistentVolumeClaims
+Kubernetes health probes
+Features
+Employee Management
+
+The application supports CRUD operations:
+
+Create employee
+Read employee information
+Update employee information
+Delete employee
+Dashboard
+
+The dashboard provides:
+
+Total number of employees
+Number of departments
+Average salary
+Employee list
+Department filtering
+Employee search
+Backend API
+
+The Spring Boot backend exposes REST APIs for employee management.
+
+Get all employees
 GET /employees
-```
+Get employee by ID
+GET /employees/{id}
+Add employee
+POST /employees
 
-### Update
+Example request:
 
-```http
-PUT /employees/1
-```
-
-```json
 {
-  "name": "Alice Smith",
+  "name": "Abhiram Teja",
   "department": "Engineering",
-  "salary": 80000
+  "salary": 85000
 }
-```
+Update employee
+PUT /employees/{id}
+Delete employee
+DELETE /employees/{id}
+Docker
 
-### Delete
+The Spring Boot application is packaged as a Docker image.
 
-```http
-DELETE /employees/1
-```
+Example:
 
-## DevOps Concepts Demonstrated
+docker build -t devops-app:latest .
 
-This project demonstrates:
+The Docker image is then used by Kubernetes to run the application.
 
-1. **Version Control** — Git and GitHub
-2. **Continuous Integration** — GitHub Actions
-3. **Containerization** — Docker
-4. **Container Orchestration** — Kubernetes
-5. **Service Discovery** — Kubernetes Services
-6. **Configuration Management** — ConfigMap
-7. **Secret Management** — Kubernetes Secret
-8. **Persistent Storage** — PersistentVolumeClaim
-9. **Application Health Monitoring** — Actuator and Kubernetes probes
-10. **Microservice Architecture** — Spring Boot REST service with independent database workload
+Kubernetes Deployment
 
-## Project Structure
+The project contains Kubernetes configuration files in the k8s directory.
 
-```text
+k8s/
+├── app-configmap.yaml
+├── app-deployment.yaml
+├── app-service.yaml
+├── postgres-deployment.yaml
+├── postgres-pvc.yaml
+├── postgres-secret.yaml
+└── postgres-service.yaml
+Kubernetes Components
+Application Deployment
+
+Runs the Spring Boot application inside a Kubernetes pod.
+
+PostgreSQL Deployment
+
+Runs the PostgreSQL database inside Kubernetes.
+
+Service
+
+Provides networking between the application and PostgreSQL.
+
+ConfigMap
+
+Stores non-sensitive application configuration.
+
+Secret
+
+Stores PostgreSQL credentials.
+
+PersistentVolumeClaim
+
+Provides persistent storage for PostgreSQL data.
+
+Running the Project
+1. Clone the repository
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+cd devops-microservice-devops
+2. Start Docker Desktop
+
+Make sure Docker Desktop is running with Kubernetes enabled.
+
+Check the cluster:
+
+kubectl get nodes
+
+Expected:
+
+NAME                    STATUS   ROLES
+desktop-control-plane   Ready    control-plane
+3. Deploy PostgreSQL
+kubectl apply -f k8s/postgres-secret.yaml
+kubectl apply -f k8s/postgres-pvc.yaml
+kubectl apply -f k8s/postgres-deployment.yaml
+kubectl apply -f k8s/postgres-service.yaml
+4. Deploy the application
+kubectl apply -f k8s/app-configmap.yaml
+kubectl apply -f k8s/app-deployment.yaml
+kubectl apply -f k8s/app-service.yaml
+5. Check pods
+kubectl get pods
+
+Expected:
+
+devops-app-deployment-xxxxx       1/1   Running
+postgres-deployment-xxxxx        1/1   Running
+6. Check services
+kubectl get services
+
+The application service uses:
+
+8080:30080
+7. Access the application
+
+The frontend can be started using:
+
+npm install
+npm run dev
+
+Then open:
+
+http://localhost:5173
+Kubernetes Commands Used
+
+Check cluster:
+
+kubectl get nodes
+
+Check pods:
+
+kubectl get pods
+
+Check services:
+
+kubectl get services
+
+Check deployments:
+
+kubectl get deployments
+
+View pod details:
+
+kubectl describe pod <pod-name>
+
+View application logs:
+
+kubectl logs <pod-name>
+
+Apply Kubernetes configuration:
+
+kubectl apply -f k8s/
+DevOps Concepts Demonstrated
+
+This project demonstrates several practical DevOps concepts:
+
+Git and GitHub
+Docker containerization
+Docker image creation
+Kubernetes cluster management
+Kubernetes deployments
+Kubernetes services
+ConfigMaps
+Secrets
+Persistent storage
+Container orchestration
+Application health monitoring
+REST API development
+Database integration
+Environment-based configuration
+Project Structure
 devops-microservice-devops/
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/
-│   │   ├── services/
-│   │   ├── App.jsx
-│   │   ├── App.css
-│   │   └── main.jsx
+│   ├── public/
 │   ├── package.json
-│   └── vite.config.js
+│   └── ...
+│
+├── src/
+│   └── main/
+│       ├── java/
+│       │   └── com/
+│       │       └── abhiram/
+│       │           └── devops/
+│       │
+│       └── resources/
 │
 ├── k8s/
 │   ├── app-configmap.yaml
@@ -348,68 +284,32 @@ devops-microservice-devops/
 │   ├── app-service.yaml
 │   ├── postgres-deployment.yaml
 │   ├── postgres-pvc.yaml
-│   ├── postgres-service.yaml
-│   └── postgres-secret.example.yaml
-│
-├── src/
-│   └── main/
-│       ├── java/
-│       └── resources/
+│   ├── postgres-secret.yaml
+│   └── postgres-service.yaml
 │
 ├── Dockerfile
-├── docker-compose.yml
 ├── pom.xml
 └── README.md
-```
-
-## Security Note
-
-Database credentials are **not committed to the repository**.
-
-The actual Kubernetes secret file:
-
-```text
-k8s/postgres-secret.yaml
-```
-
-is excluded using `.gitignore`.
-
-Only the safe template:
-
-```text
-k8s/postgres-secret.example.yaml
-```
-
-is included in the repository.
-
-## Future Improvements
+Future Improvements
 
 Possible future enhancements include:
 
-* Helm charts
-* Cloud deployment using AWS EKS
-* Terraform infrastructure
-* Prometheus and Grafana monitoring
-* Centralized logging
-* GitOps with Argo CD
-* Horizontal Pod Autoscaling
-* Production-grade ingress and TLS
+CI/CD pipeline using GitHub Actions
+Automated Docker image builds
+Container image registry integration
+Kubernetes Ingress
+Horizontal Pod Autoscaling
+Monitoring with Prometheus and Grafana
+Centralized logging
+Automated testing
+Authentication and authorization
+Deployment to a cloud Kubernetes platform
+Author
 
-## Project Status
+Abhiram Teja
 
-**Current implementation:**
+B.Tech Computer Science Engineering
 
-* React frontend: Complete
-* Employee CRUD: Complete
-* Spring Boot REST API: Complete
-* PostgreSQL: Complete
-* Docker containerization: Complete
-* Kubernetes deployment: Complete
-* Kubernetes configuration/secrets: Complete
-* Persistent storage: Complete
-* Health probes: Complete
-* CI workflow: Complete
+License
 
----
-
-**Note:** The current Kubernetes deployment uses a local Docker Desktop Kubernetes cluster for development and demonstration. The architecture can subsequently be migrated to a managed cloud Kubernetes service such as AWS EKS, Azure AKS, or Google GKE.
+This project is created for educational and portfolio purposes.
